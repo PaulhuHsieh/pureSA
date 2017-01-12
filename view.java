@@ -796,7 +796,7 @@ public class multiThreadTestMain extends Thread{
 		double tempature=0.1;
 		double alpha=0.95;
 		
-		while(count<3000){
+		while(count<1000){
 			
 			tempG=neighborSearch(tempF);
 			eA=evaluateChrome(tempF);
@@ -1054,7 +1054,7 @@ public class multiThreadTestMain extends Thread{
 		
 		// The enhanced crossover
 		
-		/*
+		
 		int count2 = 0;
 		tempD = tempC;
 		double eD1 = 2.0, eD2 = 2.0;
@@ -1063,10 +1063,11 @@ public class multiThreadTestMain extends Thread{
 			eD2 = evaluateChrome(tempD);
 			if (eD2 < eD1) {
 				eD1 = eD2;
+				tempC=tempD;
 			}
 			count2++;
 		}
-		*/
+		
 		
 		//if (eD1 < eC) {
 			// System.out.println("A better result (after "+count2+" runs) eD1="+eD1);
@@ -1085,6 +1086,7 @@ public class multiThreadTestMain extends Thread{
 			ch = chrome;
 		} else {
 			for (int i = 0; i < chrome.size(); i++) {
+				
 				boolean toDo = r.nextDouble() < mutationRate; // need further
 																// testing
 				if (toDo) {

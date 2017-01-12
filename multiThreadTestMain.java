@@ -28,7 +28,11 @@ public class multiThreadTestMain extends Thread{
 	public static List<Double> dist_BasicGA = new ArrayList<Double>();
 	public static List<Double> stdev_BasicGA = new ArrayList<Double>();
 
+	public static List<Double> eval_BasicSA = new ArrayList<Double>();
 	public static List<Long> time_BasicSA = new ArrayList<Long>();
+	public static List<Double> dist_BasicSA = new ArrayList<Double>();
+	public static List<Double> stdev_BasicSA = new ArrayList<Double>();
+	
 	
 	public static List<Double> eval_BruteForce = new ArrayList<Double>();
 	public static List<Long> time_BruteForce = new ArrayList<Long>();
@@ -112,22 +116,24 @@ public class multiThreadTestMain extends Thread{
 	
 	public void run(){
 		
-	 while(true){
-		
-		highestStdDev = 0.5;
-		lowestStdDev = 0.0;
-		highestDist = 13.0;
-		lowestDist = 3.0;
-		highLoad = 0.7;
-		lowLoad = 0.4;
+	highestStdDev = 0.5;
+	lowestStdDev = 0.0;
+	highestDist = 13.0;
+	lowestDist = 3.0;
+	highLoad = 0.7;
+	lowLoad = 0.4;
+	int switchNumber;
+	int ctrlNumber = 3;
 
-		int switchNumber = 5;
-		int ctrlNumber = 3;
-
-		int custmInitSetSize = 50;
-		double mutationRate = 0.4;
-		int maxMutation = 3000;
-		int maxGeneration = 10;
+	int custmInitSetSize = 50;
+	double mutationRate = 0.4;
+	int maxMutation = 3000;
+	int maxGeneration = 10;
+	int initialSetSize = 50;
+	int count =0;
+	double compsa,compga;
+	
+	 for(switchNumber = 15 ; switchNumber < 16 ; ){
 		
 		for (int i = 0; i < 1; i++) {
 
@@ -138,12 +144,14 @@ public class multiThreadTestMain extends Thread{
 			List<String> mapping5 = new ArrayList<String>();
 			List<String> mapping6 = new ArrayList<String>();
 			List<String> mapping7 = new ArrayList<String>();
-
-			int initialSetSize = 50;
-			System.out.println("\n*** The " + i + "-th round ***");
-			// System.out.println("=====================================");
+			
 			generateRandomSwitches(switchNumber, 2, 10);
 			generateRandomControllers(ctrlNumber, 3, 13, 50, 60);
+			
+			System.out.println("\n*** The " + i + "-th round ***");
+			
+			// System.out.println("=====================================");
+			
 			//printSwitchesInfo();
 			// printControllersInfo();
 			// System.out.println("=====================================\n");
@@ -164,9 +172,7 @@ public class multiThreadTestMain extends Thread{
 			mapping1 = generateBestChromeTraditional();
 			long time2 = System.currentTimeMillis();
 			
-			
-			
-			
+			compga = evaluateChrome(mapping1);
 			
 			eval_BasicGA.add(evaluateChrome(mapping1));
 			time_BasicGA.add((time2 - time1));
@@ -174,16 +180,20 @@ public class multiThreadTestMain extends Thread{
 			dist_CustmGA.add(calculateAvgControllerSwitchDistance(mapping1));
 			stdev_CustmGA.add(calculateAvgControllerLoadingVariance(mapping1));
 			
+			System.out.println("=====================================");
 			
-			
-         int test=0;
-			
-			long time15 = System.currentTimeMillis();
-			test = generateSAsolution(1, 2, 3);
-			long time16 = System.currentTimeMillis();
-			
-			time_BasicSA.add(time16-time15);
-			
+
+//			System.out.println("=====================================");
+			/*
+			long time3 = System.currentTimeMillis();
+			mapping2 = bruteForceSolution(switchNumber,ctrlNumber);
+			long time4 = System.currentTimeMillis();
+			eval_BruteForce.add(evaluateChrome(mapping2));
+			time_BruteForce.add((time4-time3));
+			sol_BruteForce.addAll(mapping2);
+			dist_BruteForce.add(calculateAvgControllerSwitchDistance(mapping2));
+			stdev_BruteForce.add(calculateAvgControllerLoadingVariance(mapping2));
+			*/
 			/*
 			long time5 = System.currentTimeMillis();
 			mapping3 = testGA( switchNumber, ctrlNumber, custmInitSetSize, maxGeneration, maxMutation, mutationRate);
@@ -195,9 +205,42 @@ public class multiThreadTestMain extends Thread{
 			stdev_CustmGA.add(calculateAvgControllerLoadingVariance(mapping3));
 			*/
 			
+//			printAvgControllerSwitchDistance(mapping3);
+//			printControllerLoadingVariance(mapping3);
+//			System.out.println("The customized GA time: "+(time6-time5)+" ms = "+((time6-time5)/1000)+" sec = "+((time6-time5)/60000)+" min..");
+//			System.out.println("=====================================\n");
+			
+			List<String> test= new ArrayList<String>();
+			
+			long time15 = System.currentTimeMillis();
+			test = generateSAsolution(1, 2, 3);
+			long time16 = System.currentTimeMillis();
+			
+			compsa = evaluateChrome(test);
+			
+			time_BasicSA.add(time16-time15);
+			eval_BasicSA.add(evaluateChrome(test));
+			dist_BasicSA.add(calculateAvgControllerSwitchDistance(test));
+			stdev_BasicSA.add(calculateAvgControllerLoadingVariance(test));
+			/*
+			long time5 = System.currentTimeMillis();
+			mapping3 = testGA( switchNumber, ctrlNumber, custmInitSetSize, maxGeneration, maxMutation, mutationRate);
+			long time6 = System.currentTimeMillis();
+			eval_CustmGA.add(evaluateChrome(mapping3));
+			time_CustmGA.add((time6-time5));
+			sol_CustmGA.addAll(mapping3);
+			dist_CustmGA.add(calculateAvgControllerSwitchDistance(mapping3));
+			stdev_CustmGA.add(calculateAvgControllerLoadingVariance(mapping3));
+			*/
+			
+			if(compsa>compga){
+				count++;
+			}
 			
 			///////
 			//System.out.println(first);
+			
+			/*
 			if(first==0){
 				for(int x=0;x<mapping1.size();x++){
 					temp.add(mapping1.get(x));
@@ -207,6 +250,8 @@ public class multiThreadTestMain extends Thread{
 				for(int x=0;x<mapping1.size();x++)
 					temp.set(x,mapping1.get(x));
 			}
+			*/
+			
 			///////
 			dist_BasicGA.add(calculateAvgControllerSwitchDistance(mapping1));
 			stdev_BasicGA.add(calculateAvgControllerLoadingVariance(mapping1));
@@ -214,28 +259,45 @@ public class multiThreadTestMain extends Thread{
 			resetAllControllersSwitches();
 			// System.out.println("");
 		} // end for
-
+		
 		System.out.println("======== [[ Start our little statistics ]] ================");
-	    System.out.println("[Basic GA] evaluations: "+eval_BasicGA);
-		System.out.println("[Basic GA] time: "+time_BasicGA+"ms");
+	
 		System.out.println("[Basic GA] solution: "+sol_BasicGA);
 		System.out.println("[Basic GA] Average E="+ averageDouble(eval_BasicGA));
 		System.out.println("[Basic GA] Average exe time="+ averageLong(time_BasicGA));
 		System.out.println("[Basic GA] Average distance="+ averageDouble(dist_BasicGA));
 		System.out.println("[Basic GA] Average std dev="+ averageDouble(stdev_BasicGA));
-		System.out.println("================="+time_BasicSA);
-		
-		
-		// System.out.println("[Brute-Force] evaluations: "+eval_BruteForce);
-		// System.out.println("[Brute-Force] time: "+time_BruteForce);
-		// System.out.println("[Brute-Force] solution: "+sol_BruteForce);
-		// System.out.println("[Brute-Force] Average E="+averageDouble(eval_BruteForce));
-		// System.out.println("[Brute-Force] Average exe time="+averageLong(time_BruteForce));
-		// System.out.println("[Brute-Force]returnResult Average distance="+averageDouble(dist_BruteForce));
-		// System.out.println("[Brute-Force] Average std dev="+averageDouble(stdev_BruteForce));
-		
+		System.out.println("[Basic GA] evaluations: "+eval_BasicGA);
+	    System.out.println("[Basic GA] time: "+time_BasicGA+"ms");
+		System.out.println("=====================================");
 		/*
 		System.out.println("=================");
+		System.out.println("[Brute-Force] evaluations: "+eval_BruteForce);
+		System.out.println("[Brute-Force] time: "+time_BruteForce);
+	    System.out.println("[Brute-Force] solution: "+sol_BruteForce);
+		System.out.println("[Brute-Force] Average E="+averageDouble(eval_BruteForce));
+		System.out.println("[Brute-Force] Average exe time="+averageLong(time_BruteForce));
+		System.out.println("[Brute-Force]returnResult Average distance="+averageDouble(dist_BruteForce));
+		System.out.println("[Brute-Force] Average std dev="+averageDouble(stdev_BruteForce));
+		System.out.println("=================");
+		*/
+		
+		System.out.println("[Simulated annealing] evaluations: "+eval_BasicSA);
+		System.out.println("[Simulated annealing] time: "+time_BasicSA);
+	    //System.out.println("[Brute-Force] solution: "+sol_BruteForce);
+		System.out.println("[Simulated annealing] Average E="+averageDouble(eval_BasicSA));
+		System.out.println("[Simulated annealing] Average exe time="+averageLong(time_BasicSA));
+		System.out.println("[Simulated annealing] Average distance="+averageDouble(dist_BasicSA));
+		System.out.println("[Simulated annealing] Average std dev="+averageDouble(stdev_BasicSA));
+		System.out.println("=================");
+		
+		System.out.println("sa outperforms :" + count);
+		
+		
+		/*
+		
+		
+		
 		System.out.println("[Customized GA] evaluations: "+eval_CustmGA);
 		System.out.println("[Customized GA] time: "+time_CustmGA);
 		System.out.println("[Customized GA] solution: "+sol_CustmGA);
@@ -246,8 +308,8 @@ public class multiThreadTestMain extends Thread{
 		System.out.println("=================");
 		*/
 		
-		/*
 		
+		/*
 		System.out.println("[FCFM] evaluations: " + eval_FCFM);
 		System.out.println("[FCFM] time: " + time_FCFM);
 		System.out.println("[FCFM] solution: " + sol_FCFM);
@@ -711,12 +773,20 @@ public class multiThreadTestMain extends Thread{
 		int tempID = ( r.nextInt(switchList.size()-1) );
 		int tempID2;
 		
+		while(true){
+			if(tempID==0){
+				tempID = ( r.nextInt(switchList.size()-1) );
+			}
+			else{
+				break;
+			}
+		}
 		
 		while(true){
 			
 			tempID2 = ( r.nextInt(switchList.size()-1) );
 				
-			if(tempID == tempID2){
+			if(tempID == tempID2 || tempID2==0){
 				continue;
 			}
 			else{
@@ -760,24 +830,27 @@ public class multiThreadTestMain extends Thread{
 		double c = -1;
 		double value= neighborSolution_value-currentSolution_value;
 		double expvalue = c*(value) / tempature;
-		System.out.println(expvalue);
-		double temp = Math.exp( expvalue ) ;
+		//System.out.println("neigh "+neighborSolution_value+" current "+currentSolution_value+" value : "+value);
+		double temp = Math.pow(Math.E,value) ;
+		//System.out.println("E : "+Math.E+ " value :"+value);
+		//System.out.println("temp "+temp+" tempature"+tempature);
+		boolean shouldjump = temp > r.nextDouble();
 		
-		boolean shouldjump = temp>r.nextDouble();
 		
-		System.out.println("neighbor : "+temp);
 				
 				
 		return shouldjump;
 		
 	}
-	public static int generateSAsolution(int switchNumber,int InitialSetSize, int controllerNumber){
+	
+	public static List<String> generateSAsolution(int switchNumber,int InitialSetSize, int controllerNumber){
 		
 		int indexOne = -1;
 		double temp = 2;
 		
 		List<String> tempF = new ArrayList<String>();
 		List<String> tempG = new ArrayList<String>();
+		List<String> resetempF = new ArrayList<String>();
 		
 		for (int i = 0; i < aSetOfMapping.size(); i++) {
 			// Select the best
@@ -789,38 +862,67 @@ public class multiThreadTestMain extends Thread{
 		}
 		
 		tempF = convertSwitchControllerFromMapToList(aSetOfMapping.get(indexOne));
-		
+		resetempF = tempF ;
 		int count=0;
-		double eA= evaluateChrome(tempF);
-		double eB;
-		double tempature=0.1;
-		double alpha=0.95;
 		
-		while(count<3000){
+		
+		double etemp=evaluateChrome(tempF);
+		double eA= evaluateChrome(tempF);
+		double eresetempF=eA;
+		double eB;
+		
+		double tempature=3.1;
+		
+		double alpha=0.005;
+		double temp2=0;
+		double temp3=0;
+		
+		while(count<600){
 			
 			tempG=neighborSearch(tempF);
-			eA=evaluateChrome(tempF);
+			
 			eB=evaluateChrome(tempG);
+			
 			//System.out.println("eA :"+eA+" eB :"+eB);
+			
+			if(eB<eresetempF){
+				eresetempF=eB;
+				resetempF=tempG;
+			}
+			
 			if(eB<eA){
 				tempF=tempG;
+				temp3=eB-eA;
+				//System.out.println("mid value "+temp3);
 			}
 			else if(Maxwell_Boltzmann_probability_function(eA,eB,tempature)){
+				
 				tempF=tempG;
 			}
 			else{
 				tempF=tempF;
 			}
 			
-			tempature = tempature * alpha;
+			tempature = tempature - alpha;
 			
 			count++;
 			
 		}
 		
-	    System.out.println("tempF :"+evaluateChrome(tempF));
+		System.out.println("Origin best :"+ etemp);
+		
+		List<String> ret = new ArrayList<String>();
+		
+		if( eresetempF>eA ){
+			System.out.println("tempF :"+evaluateChrome(tempF));
+			ret = tempF;
+		}
+		else if( eresetempF <= eA ){
+			System.out.println("resetempF :"+evaluateChrome(resetempF));
+			ret = resetempF;
+		}
 	    
-		return indexOne;
+		return ret;
 		
 	}
 	
@@ -1042,31 +1144,37 @@ public class multiThreadTestMain extends Thread{
 		double eD = 0.0;
 		int count = 0;
 		
-		while (((eC > eA) || (eC > eB)) && (count < 30000)) {
+		while (((eC > eA) || (eC > eB)) && (count < 300)) {
+			
 			if (eA > eB) {
 				tempC = mutate(tempA, 0.4);
 			} else {
 				tempC = mutate(tempB, 0.4);
 			}
+			
 			eC = evaluateChrome(tempC);
 			count++;
 		}
 		
 		// The enhanced crossover
-		
-		/*
+		System.out.println("eva first mutate :"+evaluateChrome(tempC));
 		int count2 = 0;
 		tempD = tempC;
+	
 		double eD1 = 2.0, eD2 = 2.0;
-		while (count2 < 100) {
+		
+		while (count2 < 300) {
+			
 			tempD = mutate(tempD, 0.7);
 			eD2 = evaluateChrome(tempD);
 			if (eD2 < eD1) {
 				eD1 = eD2;
+				tempC=tempD;
 			}
 			count2++;
+			
 		}
-		*/
+		
 		
 		//if (eD1 < eC) {
 			// System.out.println("A better result (after "+count2+" runs) eD1="+eD1);
@@ -1167,6 +1275,7 @@ public class multiThreadTestMain extends Thread{
 		} // end for i
 
 		return returningList;
+		
 	}
 
 	public static int chooseBestSelectionSize(int size) {
