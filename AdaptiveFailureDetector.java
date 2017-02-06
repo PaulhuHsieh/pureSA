@@ -38,6 +38,7 @@ public class AdaptiveFailureDetector extends MultiWindow implements
     private final double threshold;
     private double       sumOfDelays = 0.0;
     private SampledWindow       window;
+    private SampledWindow       window2;
     /**
      * 
      * @param convictionThreshold
@@ -71,7 +72,7 @@ public class AdaptiveFailureDetector extends MultiWindow implements
         this.scale = scale;
 
         window = new RunningAverage(windowSize);
-        
+        window2 = new RunningAverage(windowSize/10);
         long now = System.currentTimeMillis();
         last = now - initialSamples * expectedSampleInterval;
         for (int i = 0; i < initialSamples; i++) {
@@ -84,20 +85,22 @@ public class AdaptiveFailureDetector extends MultiWindow implements
     public synchronized void record(long timeStamp, long delay) {
         if (last >= 0.0) {
             double sample = timeStamp - last;
-           // if (sample > minInterval) {
+            if (sample > minInterval) {
                 sumOfDelays += delay;
                 if (count == samples.length) {
                     double[] removed = removeFirst();
                     sumOfDelays -= removed[1];
                 }
                 addLast(sample, delay);
+                
                 window.sample(sample);
-           // }
-          //  else
-           // {
-           // 	FdMain.mloss++;
-           // 	return;
-          //  }
+                window2.sample(sample);
+            }
+           else
+           {
+            	FdMain.mloss++;
+            	return;
+           }
         }
         double averageDelay = count == 0 ? 0.0 : sumOfDelays / count;
         last = timeStamp + averageDelay;
@@ -162,7 +165,21 @@ public class AdaptiveFailureDetector extends MultiWindow implements
     	
     	return arr;
     }
-
+	public double[] getInterArrivalTime2(){
+    	
+    	double[] arr = new double[100];
+    	
+    	int i;
+    	
+    	for(i=0;i<100;i++){
+    		arr[i]=window2.getWindowElement(i);
+    	
+    	}
+    	
+    	Arrays.sort(arr);
+    	
+    	return arr;
+    }
 	@Override
 	public void setExpectedInterArrivalTime(double expected) {
 		// TODO Auto-generated method stub

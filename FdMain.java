@@ -30,7 +30,7 @@ public class FdMain {
         public static DatagramChannel channel;
 	public static int sdflag = 0;
 	public static int count = 0;
-	
+	public static int mloss = 0;
 	public static List<String> tempResult = new ArrayList<String>();
 	
 	public static void main(String[] args) {
@@ -177,7 +177,8 @@ class ShutdownThread extends Thread {
 		{
 			System.out.println("Mistakes "+(i+1)+": "+EndNode.mc[i]);
 		}
-		System.out.println("Current Time: "+System.currentTimeMillis());		
+		System.out.println("Current Time: "+System.currentTimeMillis());	
+		System.out.println("Message Loss: "+FdMain.mloss);
 	}
 		
 }
